@@ -1035,8 +1035,10 @@ function scanNode(as, msg) {
 function scan(as, msg, param, value) {
     for (var i = 0; i < payloads.length; i++) {
         var testPayload = payloads[i];
+        var modifiedValue = value + testPayload; // Append payload to the original value
+
         var clonedMsg = msg.cloneRequest();
-        as.setParam(clonedMsg, param, testPayload);
+        as.setParam(clonedMsg, param, modifiedValue);
 
         var startTime = new Date().getTime();
         try {
@@ -1051,18 +1053,19 @@ function scan(as, msg, param, value) {
 
         // Debug logovi za merenje vremena
         print("[DEBUG] Testing payload: " + testPayload);
+        print("[DEBUG] Original value: " + value);
+        print("[DEBUG] Modified value: " + modifiedValue);
         print("[DEBUG] Response time: " + responseTime + "ms (Threshold: " + threshold + "ms)");
 
         if (responseTime >= threshold) {
             print("[DEBUG] Response time exceeded threshold! Raising alert...");
-            raiseAlert(as, clonedMsg, param, testPayload, responseTime);
+            raiseAlert(as, clonedMsg, param, modifiedValue, responseTime);
             return; // Exit after raising alert
         } else {
             print("[DEBUG] Response time did not exceed threshold.");
         }
     }
 }
-
 function raiseAlert(as, msg, param, attack, responseTime) {
     print("[DEBUG] Attempting to raise alert...");
     as.newAlert()
